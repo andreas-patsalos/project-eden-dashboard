@@ -1,0 +1,24 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node.js dependencies
+node_modules/
+
+# NPM logs
+.npm/
+npm-debug.log*
+
+# PyCharm/IDE metadata
+.idea/
+
+# Mac system files
+.DS_Store
+
+# CSS
+/static/styles.css
