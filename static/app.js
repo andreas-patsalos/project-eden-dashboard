@@ -44,6 +44,25 @@ document.addEventListener('alpine:init', () => {
             this.audio = new Audio('/static/alert.mp3');
         },
 
+        // --- Computed Statistics ---
+        get stats() {
+            const total = this.alerts.length;
+            const highPriority = this.alerts.filter(a => a.confidence >= 0.90).length;
+            const avgConfidence = total > 0
+                ? (this.alerts.reduce((sum, a) => sum + a.confidence, 0) / total * 100).toFixed(0)
+                : 0;
+            const latestAlert = total > 0 ? this.alerts[0].timestamp : 'N/A';
+
+            return { total, highPriority, avgConfidence, latestAlert };
+        },
+
+        // --- Get Alert Color Class ---
+        getAlertColorClass(confidence) {
+            if (confidence >= 0.90) return 'bg-red-800 border-red-600'; // High priority
+            if (confidence >= 0.80) return 'bg-orange-700 border-orange-500'; // Medium priority
+            return 'bg-yellow-700 border-yellow-500'; // Low priority - needs verification
+        },
+
         // --- Map Initialization ---
         initMap() {
             // ... (this function is unchanged) ...

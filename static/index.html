@@ -22,11 +22,36 @@
 
     <div class="flex h-full">
         <aside class="w-96 flex-shrink-0 bg-gray-800 shadow-lg alert-list overflow-y-auto">
+            <!-- Header -->
             <div class="p-4 border-b border-gray-700">
                 <h1 class="text-2xl font-bold text-white">Project E.D.E.N.</h1>
                 <p class="text-sm text-green-400" x-text="status"></p>
             </div>
 
+            <!-- Statistics Panel -->
+            <div class="p-4 bg-gray-900 border-b border-gray-700">
+                <h2 class="text-sm font-semibold text-gray-400 mb-2">System Statistics</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-800 rounded p-2">
+                        <div class="text-xs text-gray-400">Total Alerts</div>
+                        <div class="text-xl font-bold text-white" x-text="stats.total"></div>
+                    </div>
+                    <div class="bg-gray-800 rounded p-2">
+                        <div class="text-xs text-gray-400">High Priority</div>
+                        <div class="text-xl font-bold text-red-400" x-text="stats.highPriority"></div>
+                    </div>
+                    <div class="bg-gray-800 rounded p-2">
+                        <div class="text-xs text-gray-400">Avg Confidence</div>
+                        <div class="text-xl font-bold text-blue-400" x-text="stats.avgConfidence + '%'"></div>
+                    </div>
+                    <div class="bg-gray-800 rounded p-2">
+                        <div class="text-xs text-gray-400">Latest Alert</div>
+                        <div class="text-xs font-medium text-white truncate" x-text="stats.latestAlert"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Alerts -->
             <div class="p-4">
                 <h2 class="text-lg font-semibold text-gray-300 mb-3">Active Alerts</h2>
 
@@ -44,19 +69,30 @@
                 <template x-for="alert in alerts" :key="alert.alert_id">
                     <div
                         @click="focusOnAlert(alert)"
-                        :class="alert.status === 'Unconfirmed' ? 'bg-red-800 border-red-600' : 'bg-gray-700 border-gray-600'"
+                        :class="getAlertColorClass(alert.confidence)"
                         class="mb-3 p-3 rounded-lg border-2 shadow-md cursor-pointer hover:bg-opacity-80 transition-all">
 
                         <div class="flex justify-between items-center mb-1">
                             <span class="font-bold text-white" x-text="alert.node_id"></span>
-                            <span class="text-xs text-gray-300" x-text="alert.timestamp"></span>
+                            <span class="text-xs text-gray-200" x-text="alert.timestamp"></span>
                         </div>
 
-                        <div class="flex justify-between items-center text-sm">
+                        <div class="flex justify-between items-center text-sm mb-2">
+                            <span class="text-gray-200" x-text="alert.status"></span>
+                            <span class="font-bold text-white" x-text="`${(alert.confidence * 100).toFixed(0)}% Conf.`"></span>
+                        </div>
+
+                        <!-- Priority Badge -->
+                        <div class="mb-2">
                             <span
-                                :class="alert.status === 'Unconfirmed' ? 'text-red-200' : 'text-gray-300'"
-                                x-text="alert.status"></span>
-                            <span class="font-medium text-white" x-text="`${(alert.confidence * 100).toFixed(0)}% Conf.`"></span>
+                                :class="{
+                                    'bg-red-600': alert.confidence >= 0.90,
+                                    'bg-orange-500': alert.confidence >= 0.80 && alert.confidence < 0.90,
+                                    'bg-yellow-500': alert.confidence < 0.80
+                                }"
+                                class="text-xs font-semibold px-2 py-1 rounded text-white"
+                                x-text="alert.confidence >= 0.90 ? 'HIGH PRIORITY' : (alert.confidence >= 0.80 ? 'MEDIUM' : 'VERIFY')">
+                            </span>
                         </div>
 
                         <div class="mt-3 flex gap-2">
@@ -95,12 +131,12 @@
                 Alert Evidence: <span x-text="currentAlert ? currentAlert.node_id : ''"></span>
             </h3>
 
-            <div class="flex flex-col md:flex-row gap-6">
+            <div class="flex flex-col md:flex-row gap-6" style="min-height: 500px;">
 
-                <div class="md:w-1/2">
+                <div class="md:w-1/2 flex">
                     <img :src="currentAlert ? currentAlert.evidence_image : ''"
                          alt="Smoke Evidence"
-                         class="w-full h-full rounded object-cover aspect-video bg-gray-700">
+                         class="w-full h-full rounded object-cover bg-gray-700">
                 </div>
 
                 <div class="md:w-1/2 flex flex-col gap-4">
@@ -114,7 +150,21 @@
                             <li class="flex justify-between py-1 border-t border-gray-600">
                                 <span class="text-gray-400">Confidence:</span>
                                 <span x-text="currentAlert ? `${(currentAlert.confidence * 100).toFixed(0)}%` : ''"
-                                      class="font-bold text-red-400"></span>
+                                      :class="{
+                                          'text-red-400 font-bold': currentAlert && currentAlert.confidence >= 0.90,
+                                          'text-orange-400 font-bold': currentAlert && currentAlert.confidence >= 0.80 && currentAlert.confidence < 0.90,
+                                          'text-yellow-400 font-bold': currentAlert && currentAlert.confidence < 0.80
+                                      }"></span>
+                            </li>
+                            <li class="flex justify-between py-1 border-t border-gray-600">
+                                <span class="text-gray-400">Priority:</span>
+                                <span
+                                    x-text="currentAlert ? (currentAlert.confidence >= 0.90 ? 'HIGH' : (currentAlert.confidence >= 0.80 ? 'MEDIUM' : 'VERIFY')) : ''"
+                                    :class="{
+                                        'text-red-400 font-bold': currentAlert && currentAlert.confidence >= 0.90,
+                                        'text-orange-400 font-bold': currentAlert && currentAlert.confidence >= 0.80 && currentAlert.confidence < 0.90,
+                                        'text-yellow-400 font-bold': currentAlert && currentAlert.confidence < 0.80
+                                    }"></span>
                             </li>
                             <li class="flex justify-between py-1 border-t border-gray-600">
                                 <span class="text-gray-400">Location:</span>
@@ -128,7 +178,7 @@
                         </ul>
                     </div>
 
-                    <div id="modal-map" class="w-full h-48 rounded bg-gray-600"></div>
+                    <div id="modal-map" class="w-full flex-1 rounded bg-gray-600"></div>
 
                 </div>
             </div>
