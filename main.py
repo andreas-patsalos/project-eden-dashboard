@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from typing import List
 
-from models import AlertPayload, AlertBroadcast, Location
+from models import AlertPayload, AlertBroadcast, Location, Device
 
 # --- App Setup ---
 app = FastAPI(
@@ -13,6 +13,59 @@ app = FastAPI(
     description="Handles smoke detection alerts and broadcasts to a live dashboard.",
     version="1.0.0"
 )
+
+# --- In-Memory Device Registry ---
+# This is your "database" of all deployed devices
+DEVICE_REGISTRY = [
+    Device(
+        node_id="Camera-Node-001",
+        type="Camera",
+        location={"lat": 34.711, "lon": 32.941},
+        status="Monitoring"
+    ),
+    Device(
+        node_id="Camera-Node-002",
+        type="Camera",
+        location={"lat": 34.71236, "lon": 32.93920},
+        status="Monitoring"
+    ),
+    Device(
+        node_id="Camera-Node-003",
+        type="Camera",
+        location={"lat": 34.70999, "lon": 32.93877},
+        status="Monitoring"
+    ),
+Device(
+        node_id="Camera-Node-003",
+        type="Camera",
+        location={"lat": 34.71196, "lon": 32.93752},
+        status="Monitoring"
+    ),
+Device(
+        node_id="Camera-Node-003",
+        type="Camera",
+        location={"lat": 34.71092, "lon": 32.93788},
+        status="Monitoring"
+    ),
+Device(
+        node_id="Camera-Node-003",
+        type="Camera",
+        location={"lat": 34.71191, "lon": 32.94040},
+        status="Monitoring"
+    ),
+Device(
+        node_id="Camera-Node-003",
+        type="Camera",
+        location={"lat": 34.71037, "lon": 32.94022},
+        status="Monitoring"
+    ),
+    Device(
+        node_id="Anchor-Node-A",
+        type="Anchor",
+        location={"lat": 34.71133, "lon": 32.93925},
+        status="Online"
+    ),
+]
 
 # --- WebSocket Connection Manager ---
 class ConnectionManager:
@@ -31,6 +84,16 @@ class ConnectionManager:
             await connection.send_text(message)
 
 manager = ConnectionManager()
+
+
+# --- API Endpoint for listing all devices ---
+@app.get("/api/devices", response_model=List[Device])
+async def get_devices():
+    """
+    Returns a list of all devices in the registry.
+    The frontend calls this once on page load.
+    """
+    return DEVICE_REGISTRY
 
 
 # --- API Endpoint for the Anchor Node (RPi/Radxa) ---

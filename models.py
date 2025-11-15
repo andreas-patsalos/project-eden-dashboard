@@ -24,3 +24,10 @@ class AlertBroadcast(BaseModel):
     confidence: float
     status: str = "Unconfirmed"
     evidence_image: str
+
+# Model for a single device in the registry
+class Device(BaseModel):
+    node_id: str
+    type: str  # e.g., "Camera" or "Anchor"
+    location: Location
+    status: str = "Monitoring" # Default static status

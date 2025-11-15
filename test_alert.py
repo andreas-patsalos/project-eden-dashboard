@@ -11,8 +11,8 @@ IMAGE_DATA = "data:image/gif;base64,R0lGODlhAQABAPAAAP8AACAAACH5BAAAAAAALAAAAAAB
 alert_payload = {
     "node_id": "RPi-Demo-Node",
     "location": {
-        "lat": 34.691,
-        "lon": 33.032
+        "lat": 34.71172,
+        "lon": 32.93857
     },
     "confidence": 0.88,
     "evidence_image": IMAGE_DATA
