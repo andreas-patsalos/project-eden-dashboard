@@ -1,11 +1,12 @@
 import requests
 import time  # We need this to add a delay
+import random
 
 # --- Config ---
 API_URL = "http://127.0.0.1:8000/api/alert"
 
-# This is just a placeholder. Your frontend will use the fire_icon.png
-IMAGE_DATA = "data:image/gif;base64,R0lGODlhAQABAPAAAP8AACAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw=="
+# Valid small red square test image (to confirm the system works)
+IMAGE_DATA = "/static/smoke-sample.jpg"
 
 # --- Fire Frontline Simulation 1 (Adding) ---
 print("Simulating fire frontline 1... (8 alerts)")
@@ -24,14 +25,14 @@ for i in range(8):
     current_lat = base_lat_1 + (i * lat_increment_1)
     current_lon = base_lon_1 + (i * lon_increment_1)
 
-    # Create the alert payload
+    # Create the alert payload A
     alert_payload = {
-        "node_id": f"Fire-Front-A-{i+1}",
+        "node_id": f"Fire-Front-A-{i + 1}",
         "location": {
             "lat": current_lat,
             "lon": current_lon
         },
-        "confidence": 0.99,
+        "confidence": round(random.uniform(0.82, 0.97), 2),
         "evidence_image": IMAGE_DATA
     }
 
@@ -73,14 +74,14 @@ for i in range(6):
     current_lat = base_lat_2 + (i * lat_increment_2)
     current_lon = base_lon_2 + (i * lon_increment_2)
 
-    # Create the alert payload
+    # Create the alert payload B
     alert_payload = {
-        "node_id": f"Fire-Front-B-{i+1}",
+        "node_id": f"Fire-Front-B-{i + 1}",
         "location": {
             "lat": current_lat,
             "lon": current_lon
         },
-        "confidence": 0.99,
+        "confidence": 0.74 if i == 5 else round(random.uniform(0.85, 0.99), 2),
         "evidence_image": IMAGE_DATA
     }
 
